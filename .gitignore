@@ -1,1 +1,6 @@
 Debug
+.mxproject
+.project
+.settings
+fft_audio Debug.launch
+STM32F103CBTX_FLASH.ld
