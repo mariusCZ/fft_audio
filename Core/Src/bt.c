@@ -11,24 +11,25 @@
 
 extern UART_HandleTypeDef huart1;
 
-uint8_t buf[BUF_SIZE] = {0};
 uint8_t rbuf[1] = {0}, valbuf = 0;
 uint16_t dflag = 0;
+uint16_t numbuf = 0;
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	static uint16_t i = 0;
-	if(rbuf[0] >= '0' && rbuf[0] <= '9'){
-		buf[i] = rbuf[0];
+	if(i == 0) {
+		valbuf = rbuf[0];
 		i++;
 	}
-	else if(rbuf[0] != '\n' && rbuf[0] != '\r' && rbuf[0] != '\\' && rbuf[0] != 'n')
-		valbuf = rbuf[0];
-	else if(rbuf[0] == '\n' || rbuf[0] == '\\') {
+	else if(i == 1) {
+		numbuf = rbuf[0];
+		i++;
+	}
+	else if(i >= 2 && rbuf[0] == '\n') {
 		i = 0;
 		dflag = 1;
 	}
-	else if(rbuf[0] == 'n') ;
 }
 
 uint8_t getBT(uint8_t *val)
@@ -41,8 +42,7 @@ uint8_t getBT(uint8_t *val)
 	if(dflag) {
 		*val = valbuf;
 		dflag = 0;
-		uint16_t ret = atoi(buf);
-		for(uint16_t i = 0; i < BUF_SIZE; i++) buf[i] = 0;
+		uint16_t ret = numbuf;
 		return ret;
 	}
 	else {
